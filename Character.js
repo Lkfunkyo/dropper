@@ -10,6 +10,8 @@ function Character(obj) {
 
   this.dropped = [];
 
+  this.droppedSwitch = 'off';
+
   this.w = obj.w || 100;
   this.h = obj.h || 20;
 
@@ -22,13 +24,13 @@ function Character(obj) {
     push();
 
     translate(this.pos.x, this.pos.y);
-    
-    
+
+
     stroke(this.s);
     strokeWeight(this.sWeight);
-    
+
     fill(this.col);
-    
+
     rect(0, 0, this.w, this.h);
 
     pop();
@@ -45,16 +47,20 @@ function Character(obj) {
 
         this.dropped[i].run();
         this.dropped[i].applyGravity();
+
+        if (this.droppedSwitch == 'on') {
+          this.dropped[i].stayInScreen();
+        }
       }
     }
 
     this.vel.add(this.accel);
     this.pos.add(this.vel);
   };
-  
-  this.move = function(vector){
+
+  this.move = function(vector) {
     var vec = vector.copy();
-    
+
     this.pos.add(vec);
   };
 
@@ -75,35 +81,64 @@ function Character(obj) {
   this.applyGravity = function() {
     this.accel.add(createVector(0, 0.005));
   };
-  
-  this.stayInScreen = function(){
-    if(this.pos.x > width-this.w/2 || this.pos.x < this.w/2){
+
+  this.stayInScreen = function() {
+    if (this.pos.x > width - this.w / 2 || this.pos.x < this.w / 2) {
       this.vel.x *= -0.8;
     }
-    if(this.pos.y > height-this.h/2 || this.pos.y < this.h/2){
+    if (this.pos.y > height - this.h / 2 || this.pos.y < this.h / 2) {
       this.vel.y *= -0.8;
     }
-    
-    if(this.pos.x > width-this.w/2){
-      this.pos.x = width-this.w/2;
-    } else if(this.pos.x < this.w/2){
-      this.pos.x = this.w/2;
+
+    if (this.pos.x > width - this.w / 2) {
+      this.pos.x = width - this.w / 2;
+    } else if (this.pos.x < this.w / 2) {
+      this.pos.x = this.w / 2;
     }
-    
-    if(this.pos.y > height-this.h/2){
-      this.pos.y = height-this.h/2;
-    } else if(this.pos.y < this.h/2){
-      this.pos.y = this.h/2;
+
+    if (this.pos.y > height - this.h / 2) {
+      this.pos.y = height - this.h / 2;
+    } else if (this.pos.y < this.h / 2) {
+      this.pos.y = this.h / 2;
     }
   };
 
   this.drop = function() {
-    this.dropped.push(new Character(new randomCharacter(createVector(this.pos.x, this.pos.x), createVector(this.pos.y + this.h/2, this.pos.y + this.h/2), createVector(15, 60), createVector(5, 12), this.s, this.sWeight, this.col)));
+    var wMin = this.h / 2;
+    var wMax = this.h / 2;
+    var hMin = this.h / 2;
+    var hMax = this.h / 2;
+    if (arguments.length >= 2) {
+      if (arguments.length == 4) {
+        wMin = arguments[0];
+        wMax = arguments[1];
+        hMin = arguments[2];
+        hMax = arguments[3];
+      } else {
+        wMin = arguments[0];
+        wMax = arguments[0];
+        hMin = arguments[1];
+        hMax = arguments[1];
+      }
+    }
+
+    if (arguments.length == 1) {
+      wMin = arguments[0];
+      wMax = arguments[0];
+      hMin = arguments[0];
+      hMax = arguments[0];
+    }
+
+    this.dropped.push(new Character(new randomCharacter(createVector(this.pos.x, this.pos.x), createVector(this.pos.y + this.h / 2, this.pos.y + this.h / 2), createVector(wMin, wMax), createVector(hMin, hMax), this.s, this.sWeight, this.col)));
+  };
+
+  this.droppedInScreen = function() {
+    this.droppedSwitch = 'on';
   };
 }
 
 function randomCharacter(xVec, yVec, wVec, hVec, s, sWeight, col) {
-  var obj = new generateCharacter(random(xVec.x, xVec.y), random(yVec.x, yVec.y), random(wVec.x, wVec.y), random(hVec.x, hVec.y), s, sWeight, col);
+  var obj = new generateCharacter(random(xVec.x, xVec.y), random(yVec.x, yVec.y), random(wVec.x, wVec.y), random(hVec.x, hVec.y), s, 2, col);
 
   var x = obj.pos.x || width / 2;
   var y = obj.pos.y || height / 2;
@@ -127,6 +162,6 @@ function generateCharacter(x, y, w, h, s, sW, c) {
   this.w = w;
   this.h = h;
   this.s = s;
-  this.sW = sW;
+  this.sWeight = sW;
   this.col = c;
 }

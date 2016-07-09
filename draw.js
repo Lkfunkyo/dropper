@@ -1,9 +1,13 @@
 var characters = [];
 var topDropper;
+var bg;
 
 function setup() {
   createCanvas(displayWidth, displayHeight - 105);
-  background(0);
+  
+  bg = color(255);
+  
+  background(bg);
   
   characters.splice(0, characters.length)
 
@@ -22,7 +26,7 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(bg);
 
   for (var i = 0; i < characters.length; i++) {
     characters[i].display();
@@ -30,7 +34,8 @@ function draw() {
     characters[i].stayInScreen();
   }
   
-  characters[0].vel.limit(15)
+  characters[0].vel.limit(15);
+  characters[0].droppedInScreen();
   
   if (keyIsPressed) {
     if (keyCode == LEFT_ARROW) {
@@ -47,7 +52,7 @@ function draw() {
 }
 
 function mouseClicked() {
-  characters[0].drop(characters[0].pos.x, characters[0].pos.y);
+  characters[0].drop(15);
 }
 
 function keyTyped() {
